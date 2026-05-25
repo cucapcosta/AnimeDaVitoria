@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
@@ -16,6 +19,12 @@ jobs:
       - name: Select Xcode
         run: sudo xcode-select -s /Applications/Xcode_16.app
 
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
       - name: Run UI tests
         run: |
           xcodebuild test \
@@ -23,7 +32,9 @@ jobs:
             -scheme AnimeDaVitoria \
             -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
             -only-testing:AnimeDaVitoriaUITests/ScreenshotUITests/test_capturaTodasAsTelas \
-            -resultBundlePath build/UITestResults.xcresult
+            -resultBundlePath build/UITestResults.xcresult \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
 
       - name: Export screenshots
         if: always()
