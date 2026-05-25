@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct AnimesDaVitoriaApp: App {
+struct AnimeDaVitoriaApp: App {
     var body: some Scene {
         WindowGroup {
             ListaView()
