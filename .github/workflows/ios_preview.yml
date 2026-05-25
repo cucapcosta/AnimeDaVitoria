@@ -1,0 +1,47 @@
+name: UI Screenshots
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  screenshots:
+    runs-on: macos-15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_16.app
+
+      - name: Run UI tests
+        run: |
+          xcodebuild test \
+            -project AnimeDaVitoria.xcodeproj \
+            -scheme AnimeDaVitoria \
+            -destination 'platform=iOS Simulator,name=iPhone 16,OS=latest' \
+            -only-testing:AnimeDaVitoriaUITests/ScreenshotUITests/test_capturaTodasAsTelas \
+            -resultBundlePath build/UITestResults.xcresult
+
+      - name: Export screenshots
+        if: always()
+        run: |
+          xcrun xcresulttool export attachments \
+            --path build/UITestResults.xcresult \
+            --output-path build/screenshots
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots
+          path: build/screenshots
+
+      - name: Upload xcresult
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: xcresult
+          path: build/UITestResults.xcresult
